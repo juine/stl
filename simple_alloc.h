@@ -1,5 +1,6 @@
 /*
-**  è¯¥ç±»å®ç°å¯¹å¤–ç»Ÿä¸€çš„æ¥å£ï¼Œå…¶ä¸­é…ç½®å™¨åº”è¯¥ä½¿ç”¨äº†å•ä¾‹æ¨¡å¼ï¼Œæ‰€æœ‰å‡½æ•°ï¼Œå˜é‡éƒ½æ˜¯staticå˜é‡
+    simple_alloc.h
+**  ¸ÃÀàÊµÏÖ¶ÔÍâÍ³Ò»µÄ½Ó¿Ú£¬ÆäÖĞÅäÖÃÆ÷Ó¦¸ÃÊ¹ÓÃÁËµ¥ÀıÄ£Ê½£¬ËùÓĞº¯Êı£¬±äÁ¿¶¼ÊÇstatic±äÁ¿
 */
 
 #ifndef SIMPLE_ALLOC_H_INCLUDED
@@ -8,12 +9,13 @@
 #include<typeinfo>  //for typeid
 #include<new>       //for placement new
 #include"__malloc_alloc_template.h"
-typedef __malloc_alloc_template malloc_alloc;     //æ³¨æ„ä¸€ä¸‹ï¼Œåªèƒ½è¿™æ ·å†™ï¼Œ é¡ºåºå¾ˆé‡è¦
+typedef  juine::__malloc_alloc_template  malloc_alloc;     //×¢ÒâÒ»ÏÂ£¬Ö»ÄÜÕâÑùĞ´£¬ Ë³ĞòºÜÖØÒª
 #include"__default_alloc_template.h"
-typedef __default_alloc_template default_alloc;
+
+typedef juine::__default_alloc_template default_alloc;
 
 
-// æŒ‡å®šé…ç½®å™¨çš„ç±»å‹ï¼Œé€‰æ‹©å“ªä¸€ä¸ªæ¥è¿›è¡Œé…ç½®
+// Ö¸¶¨ÅäÖÃÆ÷µÄÀàĞÍ£¬Ñ¡ÔñÄÄÒ»¸öÀ´½øĞĞÅäÖÃ
 
 #ifdef _USE_ALLOC
     typedef malloc_alloc my_alloc;
@@ -21,57 +23,60 @@ typedef __default_alloc_template default_alloc;
     typedef default_alloc my_alloc;
 #endif
 
-
-// è¯¥å‡½æ•°ç”¨æ¥è¡¨ç¤ºä½¿ç”¨ç¬¬ä¸€é…ç½®å™¨æ—¶ï¼Œå½“ä¸ç»™å®šout of memoryå¤„ç†æ–¹æ³•æ—¶ï¼Œåˆ™é»˜è®¤ä½¿ç”¨å¦‚ä¸‹å‡½æ•°ï¼ˆæŒ‡é’ˆï¼‰
-void fun(){std::cout<<"use default method to solve oom!"<<std::endl;}
-void (*temp)()=fun;
-
-template<class T,class Alloc=my_alloc>
-class simple_alloc
+namespace juine
 {
-public:
+    // ¸Ãº¯ÊıÓÃÀ´±íÊ¾Ê¹ÓÃµÚÒ»ÅäÖÃÆ÷Ê±£¬µ±²»¸ø¶¨out of memory´¦Àí·½·¨Ê±£¬ÔòÄ¬ÈÏÊ¹ÓÃÈçÏÂº¯Êı£¨Ö¸Õë£©
+    void fun(){std::cout<<"use default method to solve oom!"<<std::endl;}
+    void (*temp)()=fun;
 
-//å¯¹ALLOCå…¶è¿›è¡Œå°è£…ï¼Œå¯¹å¤–æä¾›ç»Ÿä¸€çš„æ¥å£
-    T* alloc(size_t n)
+    template<class T,class Alloc=my_alloc>
+    class simple_alloc
     {
-        T* temp=(T*)Alloc::alloc(n);
-        return temp;
-    }
-    T* alloc()
+    public:
+
+    //¶ÔALLOCÆä½øĞĞ·â×°£¬¶ÔÍâÌá¹©Í³Ò»µÄ½Ó¿Ú
+        T* alloc(size_t n)
+        {
+            T* temp=(T*)Alloc::alloc(n);
+            return temp;
+        }
+        T* alloc()
+        {
+             T* temp=(T*)Alloc::alloc(sizeof(T));
+             return temp;
+        }
+        void dealloc(T* &buff)
+        {
+            Alloc::dealloc(buff,sizeof(T));
+            buff=NULL;  //ÊÍ·ÅÄÚ´æºó£¬Ö¸ÕëÒª¹é0
+        }
+        void dealloc(T* &buff,size_t n)
+        {
+            Alloc::dealloc(buff,n*sizeof(T));
+            buff=NULL;
+        }
+
+        //ÖÆ¶¨Òì³£´¦Àí»úÖÆ£¨µ«ÊÇÖ»Õë¶ÔµÚÒ»ÖÖÅäÖÃÇé¿ö£©
+        simple_alloc()
+        {
+            if(typeid(Alloc)==typeid(malloc_alloc))  //µ±Îª´Î¼¶ÅäÖÃÊ±£¬ÎªÁËÊÇ²»±¨´í£¬Ìá¹©ÁËÒ»¸öÎŞÒâÒåµÄ½Ó¿Ú
+                Alloc::get_function_handle()=temp;
+        }
+    };
+
+
+    //¹¹Ôìº¯Êı¹¤³§
+    template<class T,class T2>
+    inline void construct(T *p,T2 value)
     {
-         T* temp=(T*)Alloc::alloc(sizeof(T));
-         return temp;
-    }
-    void dealloc(T* buff)
-    {
-        Alloc::dealloc(buff,sizeof(T));
-    }
-    void dealloc(T* buff,size_t n)
-    {
-        Alloc::dealloc(buff,n*sizeof(T));
+        new(p) T(value);    //placement new µÄÓÃ·¨
     }
 
-    //åˆ¶å®šå¼‚å¸¸å¤„ç†æœºåˆ¶ï¼ˆä½†æ˜¯åªé’ˆå¯¹ç¬¬ä¸€ç§é…ç½®æƒ…å†µï¼‰
-    simple_alloc()
+    //Îö¹¹º¯Êı¹¤³§
+    template<class T>
+    inline void destroy(T *p)  // ÎªÁË¼òµ¥£¬¾ÍÖ»Ğ´Ò»¸ödestroy
     {
-        if(typeid(Alloc)==typeid(malloc_alloc))  //å½“ä¸ºæ¬¡çº§é…ç½®æ—¶ï¼Œä¸ºäº†æ˜¯ä¸æŠ¥é”™ï¼Œæä¾›äº†ä¸€ä¸ªæ— æ„ä¹‰çš„æ¥å£
-            Alloc::get_function_handle()=temp;
+        p->~T();
     }
-};
-
-
-//æ„é€ å‡½æ•°å·¥å‚
-template<class T,class T2>
-inline void construct(T *p,T2 value)
-{
-    new(p) T(value);    //placement new çš„ç”¨æ³•
 }
-
-//ææ„å‡½æ•°å·¥å‚
-template<class T>
-inline void destroy(T *p)  // ä¸ºäº†ç®€å•ï¼Œå°±åªå†™ä¸€ä¸ªdestroy
-{
-    p->~T();
-}
-
 #endif // SIMPLE_ALLOC_H_INCLUDED

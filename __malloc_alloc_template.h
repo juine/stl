@@ -1,62 +1,64 @@
 /*
-** ç”¨æ¥æ¨¡æ‹ŸSTLä¸­çš„ç¬¬ä¸€çº§ç©ºé—´é…ç½®å™¨ï¼Œå……åˆ†ä½“ç°äº†æ˜¯å°†ç”³è¯·å†…å­˜ä¸æ„é€ å‡½æ•°åˆ†ç¦»å¼€æ¥å¤„ç†ï¼Œè¯¥allocatoråªè´Ÿè´£ç”³è¯·å’Œé”€æ¯ç©ºé—´ï¼Œ
-é‡‡ç”¨åŸå§‹maollocå’Œfreeå‡½æ•°ç®¡ç†å†…å­˜ï¼Œè‡ªå·±åŠ¨æ‰‹å†™å¼‚å¸¸å¤„ç†å‡½æ•°
+__malloc_alloc_template.hÎÄ¼ş
+** ÓÃÀ´Ä£ÄâSTLÖĞµÄµÚÒ»¼¶¿Õ¼äÅäÖÃÆ÷£¬³ä·ÖÌåÏÖÁËÊÇ½«ÉêÇëÄÚ´æÓë¹¹Ôìº¯Êı·ÖÀë¿ªÀ´´¦Àí£¬¸ÃallocatorÖ»¸ºÔğÉêÇëºÍÏú»Ù¿Õ¼ä£¬
+²ÉÓÃÔ­Ê¼maollocºÍfreeº¯Êı¹ÜÀíÄÚ´æ£¬×Ô¼º¶¯ÊÖĞ´Òì³£´¦Àíº¯Êı
 
 */
 #ifndef __MALLOC_ALLOC_TEMPLATE_H_INCLUDED
 #define __MALLOC_ALLOC_TEMPLATE_H_INCLUDED
 #include<cstdlib>
 #include<cstddef>
-
-class __malloc_alloc_template
+namespace juine
 {
-//typedef void (*set_alloc_handle)();
-private:
-    typedef void (*handle)();
-    static handle set_alloc_handle; //å¼‚å¸¸å¤„ç†å‡½æ•°æŒ‡é’ˆï¼Œç”±ç”¨æˆ·åˆ¶å®šè®¾å®šå¦‚ä½•è§£å†³å¼‚å¸¸
-    static void* oom_malloc(size_t n);// å½“åˆ†é…å†…å­˜å¤±è´¥çš„æ—¶å€™,è°ƒç”¨è¯¥å‡½æ•°é‡æ–°åˆ†é…å†…å­˜
-public:
-    static void* alloc(size_t n)
+    class __malloc_alloc_template
     {
-        void *temp=malloc(n);
-        temp=0;     //æ•…æ„çš„ï¼Œç›®çš„æ˜¯ä¸ºäº†æ¨¡æ‹Ÿå‡ºout of memoryæ—¶è¯¥åšäº›ä»€ä¹ˆ
-        if(!temp)
-            temp=oom_malloc(n);
-        return temp;
-
-    }
-    static void dealloc(void* buff,size_t /*n*/)
-    {
-        free(buff);
-    }
-    static void set_function_handle( void (*temp)())
-    {
-        set_alloc_handle=temp;
-    }
-    static handle& get_function_handle()
-    {
-        return set_alloc_handle;
-    }
-
-};
-void (*__malloc_alloc_template::set_alloc_handle)()=0;//  è¿™ä¸ªå¿…é¡»å†™ ä¸ç„¶ä¸‹é¢å‡½æ•°ä¸­å°†æ˜¾ç¤ºset_alloc_handleæ²¡æœ‰å®šä¹‰
-void* __malloc_alloc_template::oom_malloc(size_t n)
-{
-    void *temp=0;
-    while(!temp)
-    {
-        if(set_alloc_handle==0)
+    //typedef void (*set_alloc_handle)();
+    private:
+        typedef void (*handle)();
+        static handle set_alloc_handle; //Òì³£´¦Àíº¯ÊıÖ¸Õë£¬ÓÉÓÃ»§ÖÆ¶¨Éè¶¨ÈçºÎ½â¾öÒì³£
+        static void* oom_malloc(size_t n);// µ±·ÖÅäÄÚ´æÊ§°ÜµÄÊ±ºò,µ÷ÓÃ¸Ãº¯ÊıÖØĞÂ·ÖÅäÄÚ´æ
+    public:
+        static void* alloc(size_t n)
         {
-            std::cout<<"you must find a methods to solve the memory problem "<<std::endl;
-            //æŠ›å‡ºå¼‚å¸¸å…ƒç´ 
-            exit(1);
+            void *temp=malloc(n);
+            temp=0;     //¹ÊÒâµÄ£¬Ä¿µÄÊÇÎªÁËÄ£Äâ³öout of memoryÊ±¸Ã×öĞ©Ê²Ã´
+            if(!temp)
+                temp=oom_malloc(n);
+            return temp;
+
         }
-        set_alloc_handle();
-        temp=malloc(n);
+        static void dealloc(void* buff,size_t /*n*/)
+        {
+            free(buff);
+        }
+        static void set_function_handle( void (*temp)())
+        {
+            set_alloc_handle=temp;
+        }
+        static handle& get_function_handle()
+        {
+            return set_alloc_handle;
+        }
+
+    };
+    void (*__malloc_alloc_template::set_alloc_handle)()=0;//  Õâ¸ö±ØĞëĞ´ ²»È»ÏÂÃæº¯ÊıÖĞ½«ÏÔÊ¾set_alloc_handleÃ»ÓĞ¶¨Òå
+    void* __malloc_alloc_template::oom_malloc(size_t n)
+    {
+        void *temp=0;
+        while(!temp)
+        {
+            if(set_alloc_handle==0)
+            {
+                std::cout<<"you must find a methods to solve the memory problem "<<std::endl;
+                //Å×³öÒì³£ÔªËØ
+                exit(1);
+            }
+            set_alloc_handle();
+            temp=malloc(n);
+        }
+        return temp;
     }
-    return temp;
+
 }
-
-
 
 #endif // __MALLOC_ALLOC_TEMPLATE_H_INCLUDED

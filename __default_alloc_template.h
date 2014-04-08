@@ -1,163 +1,171 @@
+/*
+**
+__default_alloc_template.hÎÄ¼ş
+´Î¼¶¿Õ¼äÅäÖÃÆ÷
+*/
+
 #ifndef __DEFAULT_ALLOC_TEMPLATE_H_INCLUDED
 #define __DEFAULT_ALLOC_TEMPLATE_H_INCLUDED
 #include<cstddef> // for size_t
 #include<cstdlib>
 using std::cout;
 using std::endl;
-
-enum {__ALIGN=8};
-enum {__MAX_BYTES=128};
-enum {MAXSIZE=__MAX_BYTES/__ALIGN};
-
-union obj
+namespace juine
 {
-    obj *next;
-    char client_data[1];
-};
-class __default_alloc_template
-{
-public:
-    static char *start_pool;   //å°½ç®¡ä¸ºé™æ€å˜é‡ï¼Œåˆå§‹åŒ–ä¹Ÿåº”è¯¥åœ¨å†…çš„å¤–é¢
-    static char *end_pool;     //ä¸ºcharæŒ‡é’ˆæ˜¯ä¸ºäº†åˆšå¥½å–å¾—1byteå†…å­˜
-    static size_t poolSize;
+    enum {__ALIGN=8};
+    enum {__MAX_BYTES=128};
+    enum {MAXSIZE=__MAX_BYTES/__ALIGN};
 
-    static obj *free_list[MAXSIZE];
+    union obj
+    {
+        obj *next;
+        char client_data[1];
+    };
+    class __default_alloc_template
+    {
+    public:
+        static char *start_pool;   //¾¡¹ÜÎª¾²Ì¬±äÁ¿£¬³õÊ¼»¯Ò²Ó¦¸ÃÔÚÄÚµÄÍâÃæ
+        static char *end_pool;     //ÎªcharÖ¸ÕëÊÇÎªÁË¸ÕºÃÈ¡µÃ1byteÄÚ´æ
+        static size_t poolSize;
 
-    //å°†nè½¬åŒ–ä¸º8çš„å€æ•°
-    static size_t ROUND_UP(size_t n)
-    {
-        return (((n)+__ALIGN-1)&~(__ALIGN-1));
-    }
-    //è·å¾—æ‰€åœ¨æ•°ç»„çš„ä¸‹æ ‡
-    static size_t POSITION(size_t n)
-    {
-        return (((n)+__ALIGN-1)/__ALIGN-1);
-    }
-    static size_t poolLeftSize()
-    {
-        return end_pool-start_pool;
-    }
-    //å½“free_liskæŒ‡é’ˆä¸º0æ—¶ï¼Œåº”è¯¥ä»å†…å­˜æ± å–å‡ºå†…å­˜æŒ‚åœ¨åœ¨æŒ‡é’ˆä¸‹é¢
-    //ï¼Œè¿”å›ç»™ç”¨æˆ·çš„æ‰€éœ€çš„å†…å­˜åœ°å€ï¼ˆåˆ·æ–°æŒ‡é’ˆæ•°ç»„æ‰€æŒ‡çš„å†…å­˜åˆ†å¸ƒï¼‰
-    static void* refill(size_t n) //æ­¤å¤„nå·²æ˜¯8çš„å€æ•°
-    {
-        size_t objs=20;
-        char *chunk=chunk_alloc(n,objs);
-        if(objs==1)
-            return chunk;
-        obj *result,*current_obj,*next_obj;
-        result=(obj*)chunk;   //è¿™ä¸€å—æ˜¯ç”¨æ¥è¿”å›ç»™å®¢æˆ·ç«¯çš„
+        static obj *free_list[MAXSIZE];
 
-        //æ¥ä¸‹æ¥çš„æ˜¯å°†è·å¾—çš„å†…å­˜èŠ‚ç‚¹å°†å…¶ä¸²èµ·æ¥ï¼Œè®©ä»¥ååˆ†é…æ›´åŠ æ–¹ä¾¿
-        free_list[POSITION(n)]=next_obj=(obj*)(chunk+n);
-        size_t i;
-        for(i=1;;i++)
+        //½«n×ª»¯Îª8µÄ±¶Êı
+        static size_t ROUND_UP(size_t n)
         {
-            current_obj=next_obj;
-            next_obj=(obj*)((char*)current_obj+n);
-            if(objs-1==i)
+            return (((n)+__ALIGN-1)&~(__ALIGN-1));
+        }
+        //»ñµÃËùÔÚÊı×éµÄÏÂ±ê
+        static size_t POSITION(size_t n)
+        {
+            return (((n)+__ALIGN-1)/__ALIGN-1);
+        }
+        static size_t poolLeftSize()
+        {
+            return end_pool-start_pool;
+        }
+        //µ±free_liskÖ¸ÕëÎª0Ê±£¬Ó¦¸Ã´ÓÄÚ´æ³ØÈ¡³öÄÚ´æ¹ÒÔÚÔÚÖ¸ÕëÏÂÃæ
+        //£¬·µ»Ø¸øÓÃ»§µÄËùĞèµÄÄÚ´æµØÖ·£¨Ë¢ĞÂÖ¸ÕëÊı×éËùÖ¸µÄÄÚ´æ·Ö²¼£©
+        static void* refill(size_t n) //´Ë´¦nÒÑÊÇ8µÄ±¶Êı
+        {
+            size_t objs=20;
+            char *chunk=chunk_alloc(n,objs);
+            if(objs==1)
+                return chunk;
+            obj *result,*current_obj,*next_obj;
+            result=(obj*)chunk;   //ÕâÒ»¿éÊÇÓÃÀ´·µ»Ø¸ø¿Í»§¶ËµÄ
+
+            //½ÓÏÂÀ´µÄÊÇ½«»ñµÃµÄÄÚ´æ½Úµã½«Æä´®ÆğÀ´£¬ÈÃÒÔºó·ÖÅä¸ü¼Ó·½±ã
+            free_list[POSITION(n)]=next_obj=(obj*)(chunk+n);
+            size_t i;
+            for(i=1;;i++)
             {
-                 current_obj->next=NULL;
-                 break;
+                current_obj=next_obj;
+                next_obj=(obj*)((char*)current_obj+n);
+                if(objs-1==i)
+                {
+                     current_obj->next=NULL;
+                     break;
+                }
+                current_obj->next=next_obj;
             }
-            current_obj->next=next_obj;
-        }
-        std::cout<<"åˆ†é…å®¢æˆ·ç«¯åï¼Œ"<<n<<"byteså¤§å°çš„å—è¿˜å‰©ä¸‹ï¼š"<<i<<std::endl;
-        return result;
+            std::cout<<"·ÖÅä¿Í»§¶Ëºó£¬"<<n<<"bytes´óĞ¡µÄ¿é»¹Ê£ÏÂ£º"<<i<<std::endl;
+            return result;
 
-    }
-    //åˆ†é…å†…å­˜æ± ç©ºé—´ï¼Œç„¶åè¿”å›æŒ‡å‘æ•°ç»„æŒ‡é’ˆçš„é¦–åœ°å€
-    static char* chunk_alloc(size_t n,size_t &objs)
-    {
-        char *result=NULL;
-        size_t totalSize=n*objs;
-        if(poolLeftSize()>totalSize)  //å½“å†…å­˜æ± å¤Ÿå¤§æ—¶ä¸€èˆ¬æ˜¯ç”³è¯·20å—
-        {
-            result=start_pool;
-            start_pool+=totalSize;
-            cout<<"å†…å­˜ç©ºé—´å¤Ÿå¤§:å¾—åˆ°"<<n<<"byteså—20ä¸ª"<<endl;
-            return result;    //åªæ˜¯è¿”å›é¦–åœ°å€è€Œå·²
         }
-        else if(poolLeftSize()>=n)   //å½“å†…å­˜æ± å¤§äºç”³è¯·å†…å­˜å¤§å°æ—¶
+        //·ÖÅäÄÚ´æ³Ø¿Õ¼ä£¬È»ºó·µ»ØÖ¸ÏòÊı×éÖ¸ÕëµÄÊ×µØÖ·
+        static char* chunk_alloc(size_t n,size_t &objs)
         {
-            objs=poolLeftSize()/n;
-            result=start_pool;
-            start_pool+=objs*n;
-            cout<<"å†…å­˜ç©ºé—´æ¯”è¾ƒå¤§:å¾—åˆ°"<<n<<"byteså—"<<objs<<"ä¸ª"<<endl;
+            char *result=NULL;
+            size_t totalSize=n*objs;
+            if(poolLeftSize()>totalSize)  //µ±ÄÚ´æ³Ø¹»´óÊ±Ò»°ãÊÇÉêÇë20¿é
+            {
+                result=start_pool;
+                start_pool+=totalSize;
+                cout<<"ÄÚ´æ¿Õ¼ä¹»´ó:µÃµ½"<<n<<"bytes¿é20¸ö"<<endl;
+                return result;    //Ö»ÊÇ·µ»ØÊ×µØÖ·¶øÒÑ
+            }
+            else if(poolLeftSize()>=n)   //µ±ÄÚ´æ³Ø´óÓÚÉêÇëÄÚ´æ´óĞ¡Ê±
+            {
+                objs=poolLeftSize()/n;
+                result=start_pool;
+                start_pool+=objs*n;
+                cout<<"ÄÚ´æ¿Õ¼ä±È½Ï´ó:µÃµ½"<<n<<"bytes¿é"<<objs<<"¸ö"<<endl;
+                return result;
+            }
+            else
+            {
+                //ĞèÒªÉêÇëµÄÄÚ´æ
+                size_t size_bytes_to_get=objs*n*2+ROUND_UP(poolSize>>4);
+                std::cout<<"ĞèÒªÉêÇëµÄÄÚ´æ´óĞ¡Îª£º"<<size_bytes_to_get<<std::endl;
+                if(poolLeftSize()>0) //µ±ÄÚ´æ³ØÖĞ»¹ÓĞÁãÍ·Ê±£¬½«Æä·ÖÅä³öÈ¥
+                {
+                    obj *temp;
+                    temp=free_list[POSITION(poolLeftSize())];  //ËùÊ£ÄÚ´æÒ»¶¨ÊÇÒ»¸ö¿é£¡
+                    free_list[POSITION(poolLeftSize())]=(obj*)start_pool;
+                    free_list[POSITION(poolLeftSize())]->next=temp;
+                    start_pool=end_pool=NULL;
+                }
+
+                start_pool=(char *)malloc(size_bytes_to_get);
+                end_pool=start_pool+size_bytes_to_get;
+                result=start_pool;
+                start_pool+=n*objs;
+                poolSize+=size_bytes_to_get;
+                return result;
+            }
+        }
+    public:
+        static void *alloc(size_t n)   //nÎªÉêÇëµÄÄÚ´æ´óĞ¡
+        {
+            obj *result=NULL;
+            //´óÓÚ128Ê±µ÷ÓÃµÚÒ»¼¶ÅäÖÃÆ÷
+            if(n>(size_t) __MAX_BYTES)
+            {
+                return (malloc_alloc::alloc(n));
+            }
+            //µÃµ½ÔÚfree_listËùÔÚµÄÎ»×Ó
+            result=free_list[POSITION(n)];
+            if(result==NULL)
+            {
+                //µ÷ÓÃrefill£¬´ÓÄÚ´æ³ØÖĞÀ´»ñµÃÄÚ´æ£¬½«Æä¹Òµ½Á´±íÖ®ÏÂ
+                void *r=refill(ROUND_UP(n));
+                return r;
+            }
+            cout<<"Ö¸ÕëÊı×é»¹ÓĞÄÚ´æ£¬ÒÑµÃµ½Ö¸Õë´óĞ¡"<<endl;
+            free_list[POSITION(n)]=result->next;
             return result;
         }
-        else
+
+        //ÊÍ·ÅÄÚ´æ
+        static void dealloc(void *buff,size_t n)
         {
-            //éœ€è¦ç”³è¯·çš„å†…å­˜
-            size_t size_bytes_to_get=objs*n*2+ROUND_UP(poolSize>>4);
-            std::cout<<"éœ€è¦ç”³è¯·çš„å†…å­˜å¤§å°ä¸ºï¼š"<<size_bytes_to_get<<std::endl;
-            if(poolLeftSize()>0) //å½“å†…å­˜æ± ä¸­è¿˜æœ‰é›¶å¤´æ—¶ï¼Œå°†å…¶åˆ†é…å‡ºå»
+            if(n>(size_t) __MAX_BYTES)
             {
-                obj *temp;
-                temp=free_list[POSITION(poolLeftSize())];  //æ‰€å‰©å†…å­˜ä¸€å®šæ˜¯ä¸€ä¸ªå—ï¼
-                free_list[POSITION(poolLeftSize())]=(obj*)start_pool;
-                free_list[POSITION(poolLeftSize())]->next=temp;
-                start_pool=end_pool=NULL;
+                malloc_alloc::dealloc(buff,n);
             }
-
-            start_pool=(char *)malloc(size_bytes_to_get);
-            end_pool=start_pool+size_bytes_to_get;
-            result=start_pool;
-            start_pool+=n*objs;
-            poolSize+=size_bytes_to_get;
-            return result;
+            int pos=POSITION(n);
+            ((obj*)buff)->next=free_list[pos];
+            free_list[pos]=(obj*)buff;
         }
-    }
-public:
-    static void *alloc(size_t n)   //nä¸ºç”³è¯·çš„å†…å­˜å¤§å°
-    {
-        obj *result=NULL;
-        //å¤§äº128æ—¶è°ƒç”¨ç¬¬ä¸€çº§é…ç½®å™¨
-        if(n>(size_t) __MAX_BYTES)
+
+        //ÎŞÒâÒå£¬´¿´âÎªÁË±ê×¼½Ó¿Ú
+        typedef void (*handle)();
+        static handle& get_function_handle()
         {
-            return (malloc_alloc::alloc(n));
+            handle p;
+            return p;
         }
-        //å¾—åˆ°åœ¨free_listæ‰€åœ¨çš„ä½å­
-        result=free_list[POSITION(n)];
-        if(result==NULL)
-        {
-            //è°ƒç”¨refillï¼Œä»å†…å­˜æ± ä¸­æ¥è·å¾—å†…å­˜ï¼Œå°†å…¶æŒ‚åˆ°é“¾è¡¨ä¹‹ä¸‹
-            void *r=refill(ROUND_UP(n));
-            return r;
-        }
-        cout<<"æŒ‡é’ˆæ•°ç»„è¿˜æœ‰å†…å­˜ï¼Œå·²å¾—åˆ°æŒ‡é’ˆå¤§å°"<<endl;
-        free_list[POSITION(n)]=result->next;
-        return result;
-    }
 
-    //é‡Šæ”¾å†…å­˜
-    static void dealloc(void *buff,size_t n)
-    {
-        if(n>(size_t) __MAX_BYTES)
-        {
-            malloc_alloc::dealloc(buff,n);
-        }
-        int pos=POSITION(n);
-        ((obj*)buff)->next=free_list[pos];
-        free_list[pos]=(obj*)buff;
-    }
+    };
 
-    //æ— æ„ä¹‰ï¼Œçº¯ç²¹ä¸ºäº†æ ‡å‡†æ¥å£
-    typedef void (*handle)();
-    static handle& get_function_handle()
-    {
-        handle p;
-        return p;
-    }
-
-};
-
-//åˆå§‹åŒ–æ•°æ®
-char* __default_alloc_template::start_pool=NULL;
-char* __default_alloc_template::end_pool=NULL;
-size_t __default_alloc_template::poolSize=0;
+    //³õÊ¼»¯Êı¾İ
+    char* __default_alloc_template::start_pool=NULL;
+    char* __default_alloc_template::end_pool=NULL;
+    size_t __default_alloc_template::poolSize=0;
 
 
-obj* __default_alloc_template::free_list[MAXSIZE]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    obj* __default_alloc_template::free_list[MAXSIZE]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+}
 
 #endif // __DEFAULT_ALLOC_TEMPLATE_H_INCLUDED

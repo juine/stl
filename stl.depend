@@ -1,0 +1,97 @@
+# depslib dependency file v1.0
+1396424911 source:/home/juine/algorithm/stl /main.cpp
+	<iostream>
+	<cstring>
+	<cstdlib>
+	<vector>
+	"simple_alloc.h"
+	"__default_alloc_template.h"
+
+1396402443 /home/juine/algorithm/stl /__malloc_alloc_template.h
+	<cstdlib>
+	<cstddef>
+
+1396427740 /home/juine/algorithm/stl /simple_alloc.h
+	<typeinfo>
+	<new>
+	"__malloc_alloc_template.h"
+	"__default_alloc_template.h"
+
+1396422396 /home/juine/algorithm/stl /__default_alloc_template.h
+	<cstddef>
+	<cstdlib>
+
+1396426687 source:/home/juine/algorithm/stl /test_alloc.cpp
+	<iostream>
+	<cstring>
+	<cstdlib>
+	<vector>
+	"simple_alloc.h"
+
+1396428699 source:/home/juine/algorithm/stl /test_iterator.cpp
+	<vector>
+	<iostream>
+	"my_iterator.h"
+
+1396428690 /home/juine/algorithm/stl /my_iterator.h
+
+1396917668 source:/home/juine/algorithm/stl/test_alloc.cpp
+	<cstring>
+	<cstdlib>
+	"simple_alloc.h"
+
+1396579513 /home/juine/algorithm/stl/simple_alloc.h
+	<typeinfo>
+	<new>
+	"__malloc_alloc_template.h"
+	"__default_alloc_template.h"
+
+1396579685 /home/juine/algorithm/stl/__malloc_alloc_template.h
+	<cstdlib>
+	<cstddef>
+
+1396579416 /home/juine/algorithm/stl/__default_alloc_template.h
+	<cstddef>
+	<cstdlib>
+
+1396921997 source:/home/juine/algorithm/stl/test_iterator.cpp
+	<vector>
+	<iostream>
+	"my_iterator_base.h"
+
+1396445271 /home/juine/algorithm/stl/my_iterator.h
+
+1396924837 /home/juine/algorithm/stl/my_iterator_base.h
+	<iostream>
+	<typeinfo>
+
+1396963329 source:e:\workplace\stl\test_alloc.cpp
+	<iostream>
+	<cstring>
+	<cstdlib>
+	"simple_alloc.h"
+
+1396963438 e:\workplace\stl\simple_alloc.h
+	<typeinfo>
+	<new>
+	"__malloc_alloc_template.h"
+	"__default_alloc_template.h"
+
+1396963374 e:\workplace\stl\__malloc_alloc_template.h
+	<cstdlib>
+	<cstddef>
+
+1396963356 e:\workplace\stl\__default_alloc_template.h
+	<cstddef>
+	<cstdlib>
+
+1396961525 source:e:\workplace\stl\test_iterator.cpp
+	<iostream>
+	"my_iterator_base.h"
+
+1396961306 e:\workplace\stl\my_iterator_base.h
+	<iostream>
+	<typeinfo>
+
+1396958254 source:e:\workplace\stl\test.cpp
+

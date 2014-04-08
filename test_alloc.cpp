@@ -1,9 +1,11 @@
-/*#include <iostream>
+//   test_alloc.cpp
+#include <iostream>
 #include<cstring>
 #include<cstdlib>
-//#define _USE_ALLOC   //ç”¨è¿‡æ˜¯å¦å®šä¹‰è¿™ä¸ªå˜é‡ï¼Œç¡®å®šä½¿ç”¨çš„æ˜¯å“ªä¸ªé…ç½®å™¨
+//#define _USE_ALLOC   //ÓÃ¹ıÊÇ·ñ¶¨ÒåÕâ¸ö±äÁ¿£¬È·¶¨Ê¹ÓÃµÄÊÇÄÄ¸öÅäÖÃÆ÷
 #include"simple_alloc.h"
 using namespace std;
+using namespace juine;
 struct student
 {
     int id;
@@ -21,13 +23,18 @@ int main(void)
     student *p=ss.alloc(3*sizeof(student));
     student *q=ss.alloc(3*sizeof(student));
     student *t=ss.alloc(3*sizeof(student));
-    //for(;i<3;i++)           //æ¬¡çº§é…ç½®ä¸­çš„ä¸€ä¸ªç¼ºé™·ï¼Œå…¶å®pæŒ‡é’ˆåº”è¯¥åªæ˜¯æŒ‡å‘5ä¸ªintçš„ï¼Œä¸çŸ¥åˆ°æ€ä¹ˆåˆ¤æ–­è¶Šç•Œäº†æ²¡
-    construct(p,student(1,"å°zhang"));   //ç”¨æ¥æ„é€ å¯¹è±¡
-    construct(p+1,student(2,"å°lan"));
-    construct(p+2,student(3,"å°s"));
+    //for(;i<3;i++)           //´Î¼¶ÅäÖÃÖĞµÄÒ»¸öÈ±Ïİ£¬ÆäÊµpÖ¸ÕëÓ¦¸ÃÖ»ÊÇÖ¸Ïò5¸öintµÄ£¬²»Öªµ½ÔõÃ´ÅĞ¶ÏÔ½½çÁËÃ»
+    construct(p,student(1,"Ğ¡zhang"));   //ÓÃÀ´¹¹Ôì¶ÔÏó
+    construct(p+1,student(2,"Ğ¡lan"));
+    construct(p+2,student(3,"Ğ¡s"));
     int i;
     for(i=0;i<3;i++)
+    {
         cout<<p[i]<<endl;
-    destroy(p);
-    cout<<p[0]<<endl;
-}*/
+        destroy(p);   //Îö¹¹º¯Êı
+    }
+    ss.dealloc(p);  //ÊÍ·ÅÄÚ´æ
+    if(p) //ÅĞ¶ÏÊÇ·ñÊÍ·ÅÄÚ´æ
+        cout<<p[0]<<endl;
+}
+
